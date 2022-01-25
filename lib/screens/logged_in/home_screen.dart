@@ -312,9 +312,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(20.0),
                   child: switchValue
                       ? orderList.isNotEmpty
-                          ? Column(
-                              children: orderList,
-                            )
+                          ? inProgressLength < 4
+                              ? Column(
+                                  children: orderList,
+                                )
+                              : Column(
+                                  children: const [
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Text(
+                                      "Maximum Orders Reached",
+                                      style: TextStyle(fontSize: 22),
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    Text("Maximum of 4 orders reached."),
+                                  ],
+                                )
                           : Column(
                               children: const [
                                 SizedBox(
@@ -356,6 +372,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   onPressed: () {
                     nearbyVendorGQL();
+                    inProgressGQL();
                   },
                 )
               : Container(),
