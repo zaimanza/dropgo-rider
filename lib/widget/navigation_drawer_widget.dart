@@ -69,8 +69,8 @@ class NavigationDrawerWidget extends StatelessWidget {
                     },
                   ),
                   buildMenuItem(
-                    text: "My Orders",
-                    icon: Icons.article_outlined,
+                    text: "Wallet",
+                    icon: Icons.account_balance_wallet_outlined,
                     onClicked: () {
                       Navigator.of(context).pop();
                       Navigator.of(context).popUntil((route) => route.isFirst);

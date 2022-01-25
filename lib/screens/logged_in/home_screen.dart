@@ -1,6 +1,21 @@
+import 'package:dropgorider/const/date_format.dart';
 import 'package:dropgorider/const/no_glow.dart';
+import 'package:dropgorider/graphQl/graph_ql_api.dart';
+import 'package:dropgorider/graphQl/order/end_work.dart';
+import 'package:dropgorider/graphQl/order/in_progress.dart';
+import 'package:dropgorider/graphQl/order/nearby_vendor.dart';
+import 'package:dropgorider/graphQl/order/start_work.dart';
+import 'package:dropgorider/providers/connectivity_provider.dart';
+import 'package:dropgorider/providers/location_provider.dart';
+import 'package:dropgorider/widget/my_order_box.dart';
 import 'package:dropgorider/widget/navigation_drawer_widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/src/provider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+
+import 'in_progress_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -10,10 +25,209 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int inProgressLength = 0;
+  bool switchValue = false;
   List<Widget> dropLocations = [];
   bool isLoadingCircularOn = false;
+  List<Widget> orderList = [];
   final ValueNotifier<double> totalPriceFloatActionButton =
       ValueNotifier<double>(0);
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read(connectivityProvider).startConnectionProvider();
+    context.read(locationProvider).askLocationPermission();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    context.read(connectivityProvider).disposeConnectionProvider();
+  }
+
+  startWorkGQL() async {
+    setState(() {
+      isLoadingCircularOn = true;
+    });
+    final Position _locationResult = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    QueryResult result;
+    result = await clientQuery.query(
+      QueryOptions(
+        document: gql(startWork),
+        variables: {
+          "liveLatLng": _locationResult.latitude.toString() +
+              "," +
+              _locationResult.longitude.toString(),
+        },
+      ),
+    );
+
+    if (result.hasException == true) {
+      setState(() {
+        isLoadingCircularOn = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.exception!.graphqlErrors[0].message.toString()),
+        ),
+      );
+    }
+
+    if (result.data != null) {
+      setState(() {
+        orderList = [];
+        isLoadingCircularOn = false;
+        print(result.data);
+        result.data!['startWork'].forEach((order) {
+          orderList.add(
+            MyOrderBox(
+              items: order["items"],
+              address: order["address"],
+              id: order["_id"],
+              dateCreated: dateFormat(order["dateCreated"]),
+              dateAccepted: dateFormat(order["dateAccepted"]),
+              dateFinish: dateFormat(order["dateFinish"]),
+              rider: order["rider"] ?? {},
+              nearbyVendorGQL: nearbyVendorGQL,
+            ),
+          );
+        });
+        switchValue = true;
+      });
+    }
+  }
+
+  endWorkGQL() async {
+    setState(() {
+      isLoadingCircularOn = true;
+    });
+    final Position _locationResult = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    QueryResult result;
+    result = await clientQuery.query(
+      QueryOptions(
+        document: gql(endWork),
+      ),
+    );
+
+    if (result.hasException == true) {
+      setState(() {
+        isLoadingCircularOn = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.exception!.graphqlErrors[0].message.toString()),
+        ),
+      );
+    }
+
+    if (result.data != null) {
+      setState(() {
+        orderList = [];
+        isLoadingCircularOn = false;
+        print(result.data);
+        inProgressLength = 0;
+        switchValue = false;
+      });
+    }
+  }
+
+  nearbyVendorGQL() async {
+    setState(() {
+      isLoadingCircularOn = true;
+    });
+    final Position _locationResult = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    QueryResult result;
+    result = await clientQuery.query(
+      QueryOptions(
+        document: gql(nearbyVendor),
+        variables: {
+          "liveLatLng": _locationResult.latitude.toString() +
+              "," +
+              _locationResult.longitude.toString(),
+        },
+      ),
+    );
+
+    if (result.hasException == true) {
+      setState(() {
+        isLoadingCircularOn = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.exception!.graphqlErrors[0].message.toString()),
+        ),
+      );
+    }
+
+    if (result.data != null) {
+      setState(() {
+        orderList = [];
+        isLoadingCircularOn = false;
+        print(result.data);
+        result.data!['nearbyVendor'].forEach((order) {
+          orderList.add(
+            MyOrderBox(
+              items: order["items"],
+              address: order["address"],
+              id: order["_id"],
+              dateCreated: dateFormat(order["dateCreated"]),
+              dateAccepted: dateFormat(order["dateAccepted"]),
+              dateFinish: dateFormat(order["dateFinish"]),
+              rider: order["rider"] ?? {},
+              nearbyVendorGQL: nearbyVendorGQL,
+            ),
+          );
+        });
+      });
+    }
+  }
+
+  inProgressGQL() async {
+    setState(() {
+      isLoadingCircularOn = true;
+    });
+    final Position _locationResult = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    QueryResult result;
+    result = await clientQuery.query(
+      QueryOptions(
+        document: gql(inProgress),
+      ),
+    );
+
+    if (result.hasException == true) {
+      setState(() {
+        isLoadingCircularOn = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.exception!.graphqlErrors[0].message.toString()),
+        ),
+      );
+    }
+
+    if (result.data != null) {
+      setState(() {
+        orderList = [];
+        isLoadingCircularOn = false;
+        inProgressLength = result.data!['inProgress'].length;
+        print(result.data!['inProgress'].length);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,71 +241,124 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.black,
             ),
             backgroundColor: Colors.yellow,
-            centerTitle: true,
-            title: const Text(
-              "Drop Go",
-              style: TextStyle(
-                fontSize: 22,
-                color: Colors.black,
+            title: switchValue
+                ? GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (context, __, ___) =>
+                              const InProgressScreen(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      "In Progress (${inProgressLength.toString()})",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                      ),
+                    ),
+                  )
+                : const Text(
+                    "Orders",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                    ),
+                  ),
+            actions: [
+              Center(
+                child: switchValue
+                    ? const Text(
+                        "Online",
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    : const Text(
+                        "Offline",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
-            ),
+              Switch.adaptive(
+                activeColor: Colors.green,
+                activeTrackColor: Colors.green.withOpacity(0.4),
+                inactiveThumbColor: Colors.red,
+                inactiveTrackColor: Colors.red.withOpacity(0.4),
+                splashRadius: 50,
+                value: switchValue,
+                onChanged: (value) {
+                  if (switchValue == false) {
+                    startWorkGQL();
+                    inProgressGQL();
+                  } else {
+                    endWorkGQL();
+                  }
+                },
+              )
+            ],
           ),
           body: ScrollConfiguration(
             behavior: NoGlow(),
             child: SingleChildScrollView(
               primary: false,
               child: Center(
-                child: Stack(
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      height: 200,
-                      color: Colors.yellow,
-                      child: const Center(
-                        child: Text("Order today with Drop Go"),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        children: [
-                          const SizedBox(
-                            height: 150,
-                          ),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(5.0),
-                            child: Container(
-                              width: double.infinity,
-                              margin: const EdgeInsets.only(
-                                  bottom: 6.0), //Same as `blurRadius` i guess
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5.0),
-                                color: Colors.white,
-                                boxShadow: const [
-                                  //pickup location
-                                  // deliver location
-                                  // add button. max 4
-                                  BoxShadow(
-                                    color: Colors.grey,
-                                    offset: Offset(0.0, 1.0), //(x,y)
-                                    blurRadius: 6.0,
-                                  ),
-                                ],
-                              ),
-                              child: Container(),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: switchValue
+                      ? orderList.isNotEmpty
+                          ? Column(
+                              children: orderList,
+                            )
+                          : Column(
+                              children: const [
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Text(
+                                  "No Orders Yet",
+                                  style: TextStyle(fontSize: 22),
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Text("There is no nearby order"),
+                              ],
+                            )
+                      : Column(
+                          children: const [
+                            SizedBox(
+                              height: 20,
                             ),
-                          ),
-                          const SizedBox(
-                            height: 150,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                            Text(
+                              "No Orders",
+                              style: TextStyle(fontSize: 22),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Text("You are offline"),
+                          ],
+                        ),
                 ),
               ),
             ),
           ),
+          floatingActionButton: switchValue
+              ? FloatingActionButton(
+                  child: const Icon(
+                    Icons.refresh,
+                  ),
+                  onPressed: () {
+                    nearbyVendorGQL();
+                  },
+                )
+              : Container(),
         ),
         if (isLoadingCircularOn == true) ...[
           Center(
