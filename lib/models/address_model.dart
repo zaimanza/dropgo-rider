@@ -1,4 +1,5 @@
 class AddressModel {
+  String id;
   String latLng;
   String state;
   String city;
@@ -8,6 +9,7 @@ class AddressModel {
   String unitFloor;
 
   AddressModel(
+    this.id,
     this.latLng,
     this.state,
     this.city,
@@ -28,7 +30,8 @@ class AddressModel {
       };
 
   AddressModel.fromJson(Map json)
-      : latLng = json['latLng'],
+      : id = json['id'],
+        latLng = json['latLng'],
         state = json['state'],
         city = json['city'],
         country = json['country'],

@@ -6,11 +6,13 @@ import 'package:dropgorider/graphQl/order/in_progress.dart';
 import 'package:dropgorider/graphQl/order/nearby_vendor.dart';
 import 'package:dropgorider/graphQl/order/start_work.dart';
 import 'package:dropgorider/providers/connectivity_provider.dart';
+import 'package:dropgorider/providers/in_progress_provider.dart';
 import 'package:dropgorider/providers/location_provider.dart';
 import 'package:dropgorider/widget/my_order_box.dart';
 import 'package:dropgorider/widget/navigation_drawer_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/all.dart';
 import 'package:flutter_riverpod/src/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -25,7 +27,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int inProgressLength = 0;
   bool switchValue = false;
   List<Widget> dropLocations = [];
   bool isLoadingCircularOn = false;
@@ -82,7 +83,6 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         orderList = [];
         isLoadingCircularOn = false;
-        print(result.data);
         result.data!['startWork'].forEach((order) {
           orderList.add(
             MyOrderBox(
@@ -132,8 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         orderList = [];
         isLoadingCircularOn = false;
-        print(result.data);
-        inProgressLength = 0;
+        context.read(inProgressProvider).inProgressOrders = [];
         switchValue = false;
       });
     }
@@ -174,7 +173,6 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         orderList = [];
         isLoadingCircularOn = false;
-        print(result.data);
         result.data!['nearbyVendor'].forEach((order) {
           orderList.add(
             MyOrderBox(
@@ -223,8 +221,9 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         orderList = [];
         isLoadingCircularOn = false;
-        inProgressLength = result.data!['inProgress'].length;
-        print(result.data!['inProgress'].length);
+        context
+            .read(inProgressProvider)
+            .setInProgress(result.data!['inProgress']);
       });
     }
   }
@@ -252,12 +251,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     },
-                    child: Text(
-                      "In Progress (${inProgressLength.toString()})",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                      ),
+                    child: Consumer(
+                      builder: (context, watch, child) {
+                        return Text(
+                          "In Progress (${watch(inProgressProvider).inProgressOrders.length.toString()})",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                          ),
+                        );
+                      },
                     ),
                   )
                 : const Text(
@@ -312,25 +315,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: const EdgeInsets.all(20.0),
                   child: switchValue
                       ? orderList.isNotEmpty
-                          ? inProgressLength < 4
-                              ? Column(
-                                  children: orderList,
-                                )
-                              : Column(
-                                  children: const [
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    Text(
-                                      "Maximum Orders Reached",
-                                      style: TextStyle(fontSize: 22),
-                                    ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    Text("Maximum of 4 orders reached."),
-                                  ],
-                                )
+                          ? Consumer(
+                              builder: (context, watch, child) {
+                                return watch(inProgressProvider)
+                                            .inProgressOrders
+                                            .length <
+                                        4
+                                    ? Column(
+                                        children: orderList,
+                                      )
+                                    : Column(
+                                        children: const [
+                                          SizedBox(
+                                            height: 20,
+                                          ),
+                                          Text(
+                                            "Maximum Orders Reached",
+                                            style: TextStyle(fontSize: 22),
+                                          ),
+                                          SizedBox(
+                                            height: 20,
+                                          ),
+                                          Text("Maximum of 4 orders reached."),
+                                        ],
+                                      );
+                              },
+                            )
                           : Column(
                               children: const [
                                 SizedBox(
