@@ -33,6 +33,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool isPNumberEmpty = false;
   bool isPNumberErr = false;
 
+  TextEditingController plateNumController = TextEditingController();
+  bool isPlateNumEmpty = false;
+  bool isPlateNumErr = false;
+
+  TextEditingController typeController = TextEditingController();
+  bool isTypeEmpty = false;
+  bool isTypeErr = false;
+
+  TextEditingController vehicleModelController = TextEditingController();
+  bool isVehicleModelEmpty = false;
+  bool isVehicleModelErr = false;
+
   bool isLoadingCircularOn = false;
 
   bool obscureText = true;
@@ -57,16 +69,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
     context.read(connectivityProvider).disposeConnectionProvider();
   }
 
-  addMerchantGqlController(addMerchantObj) async {
+  addRiderGqlController(addRiderObj) async {
     setState(() {
       isLoadingCircularOn = true;
     });
-    print(addMerchantObj);
+    print(addRiderObj);
     QueryResult result;
     result = await clientQuery.query(
       QueryOptions(
         document: gql(addRider),
-        variables: addMerchantObj,
+        variables: addRiderObj,
       ),
     );
 
@@ -96,6 +108,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: SafeArea(
         child: Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0.0,
@@ -339,6 +352,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     obscureText: obscureText,
                                   ),
                                 ),
+                                const SizedBox(
+                                  height: 30,
+                                ),
                                 if (isPassEmpty || isPassErr) ...[
                                   const Padding(
                                     padding: EdgeInsets.only(top: 5),
@@ -352,6 +368,129 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     ),
                                   ),
                                 ],
+                                const Padding(
+                                  padding: EdgeInsets.only(bottom: 20.0),
+                                  child: Text(
+                                    "Vehicle Information",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  decoration: const ShapeDecoration(
+                                    color: Colors.white,
+                                    shape: StadiumBorder(),
+                                  ),
+                                  child: TextFormField(
+                                    buildCounter: (BuildContext context,
+                                            {required currentLength,
+                                            maxLength,
+                                            required isFocused}) =>
+                                        null,
+                                    maxLength: 128,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        isPlateNumEmpty = false;
+                                        isPlateNumErr = false;
+                                      });
+                                    },
+                                    controller: plateNumController,
+                                    keyboardType: TextInputType.text,
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Plate Number",
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                      contentPadding: EdgeInsets.only(
+                                        left: 40,
+                                        top: 20,
+                                        bottom: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 30,
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  decoration: const ShapeDecoration(
+                                    color: Colors.white,
+                                    shape: StadiumBorder(),
+                                  ),
+                                  child: TextFormField(
+                                    buildCounter: (BuildContext context,
+                                            {required currentLength,
+                                            maxLength,
+                                            required isFocused}) =>
+                                        null,
+                                    maxLength: 128,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        isTypeEmpty = false;
+                                        isTypeErr = false;
+                                      });
+                                    },
+                                    controller: typeController,
+                                    keyboardType: TextInputType.text,
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Vehicle Type",
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                      contentPadding: EdgeInsets.only(
+                                        left: 40,
+                                        top: 20,
+                                        bottom: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 30,
+                                ),
+                                Container(
+                                  width: double.infinity,
+                                  height: 50,
+                                  decoration: const ShapeDecoration(
+                                    color: Colors.white,
+                                    shape: StadiumBorder(),
+                                  ),
+                                  child: TextFormField(
+                                    buildCounter: (BuildContext context,
+                                            {required currentLength,
+                                            maxLength,
+                                            required isFocused}) =>
+                                        null,
+                                    maxLength: 128,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        isVehicleModelEmpty = false;
+                                        isVehicleModelErr = false;
+                                      });
+                                    },
+                                    controller: vehicleModelController,
+                                    keyboardType: TextInputType.text,
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Vehicle Model",
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                      contentPadding: EdgeInsets.only(
+                                        left: 40,
+                                        top: 20,
+                                        bottom: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                                 SizedBox(
                                   height:
                                       MediaQuery.of(context).size.height / 6,
@@ -408,24 +547,59 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         isPassErr = true;
                                       }
                                     }
+                                    if (plateNumController.text.isEmpty) {
+                                      setState(() {
+                                        isPlateNumEmpty = true;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isPlateNumEmpty = false;
+                                      });
+                                    }
+                                    if (typeController.text.isEmpty) {
+                                      setState(() {
+                                        isTypeEmpty = true;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isTypeEmpty = false;
+                                      });
+                                    }
+                                    if (vehicleModelController.text.isEmpty) {
+                                      setState(() {
+                                        isVehicleModelEmpty = true;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isVehicleModelEmpty = false;
+                                      });
+                                    }
 
                                     if (fullNameController.text.isNotEmpty &&
                                         pNumberController.text.isNotEmpty &&
                                         emailController.text.isNotEmpty &&
-                                        passwordController.text.isNotEmpty) {
-                                      Map<String, dynamic> addMerchantObj = {};
+                                        passwordController.text.isNotEmpty &&
+                                        plateNumController.text.isNotEmpty &&
+                                        typeController.text.isNotEmpty &&
+                                        vehicleModelController
+                                            .text.isNotEmpty) {
+                                      Map<String, dynamic> addRiderObj = {};
                                       //Check Email
                                       setState(() {
                                         isFullNameErr = isFullNameEmpty = false;
                                         isPNumberErr = isPNumberEmpty = false;
                                         isEmailErr = isEmailEmpty = false;
                                         isPassErr = isPassEmpty = false;
+                                        isPlateNumErr = isPlateNumEmpty = false;
+                                        isTypeErr = isTypeEmpty = false;
+                                        isVehicleModelErr =
+                                            isVehicleModelEmpty = false;
 
                                         //Check Full Name
                                         if (!regName.hasMatch(
                                             fullNameController.text)) {
                                           isFullNameErr = false;
-                                          addMerchantObj['name'] =
+                                          addRiderObj['name'] =
                                               fullNameController.text;
                                         } else {
                                           isFullNameErr = true;
@@ -435,7 +609,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         if (!regExpPNumber
                                             .hasMatch(pNumberController.text)) {
                                           isPNumberErr = false;
-                                          addMerchantObj['pNumber'] =
+                                          addRiderObj['pNumber'] =
                                               "+6" + pNumberController.text;
                                         } else {
                                           isPNumberErr = true;
@@ -446,7 +620,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                           emailController.text,
                                         )) {
                                           isEmailErr = false;
-                                          addMerchantObj['email'] =
+                                          addRiderObj['email'] =
                                               emailController.text;
                                         } else {
                                           isEmailErr = true;
@@ -455,23 +629,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         if (!regExpPassword.hasMatch(
                                             passwordController.text)) {
                                           isPassErr = false;
-                                          addMerchantObj['password'] =
+                                          addRiderObj['password'] =
                                               passwordController.text;
                                         } else {
                                           isPassErr = true;
                                         }
+                                        addRiderObj['plateNum'] =
+                                            plateNumController.text;
+                                        addRiderObj['type'] =
+                                            typeController.text;
+                                        addRiderObj['vehicleModel'] =
+                                            vehicleModelController.text;
+                                        addRiderObj['profileImg'] = "none";
                                       });
 
                                       if (context
                                               .read(connectivityProvider)
                                               .connectionStatus ==
                                           true) {
-                                        if (addMerchantObj.isNotEmpty &&
+                                        if (addRiderObj.isNotEmpty &&
                                             isPassErr == false &&
                                             isEmailErr == false) {
                                           TextInput.finishAutofillContext();
-                                          addMerchantGqlController(
-                                              addMerchantObj);
+                                          addRiderGqlController(addRiderObj);
                                         }
                                       } else {
                                         ScaffoldMessenger.of(context)

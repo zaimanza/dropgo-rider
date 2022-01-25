@@ -62,7 +62,7 @@ class RiderProvider extends ChangeNotifier {
       riderResult['updateAt'] ?? "",
       riderResult['isWork'] ?? false,
       riderResult['profileImg'] ?? "",
-      riderResult['wallet'] ?? "",
+      riderResult['wallet']['_id'] ?? "",
       VehicleModel(
         riderResult['vehicle']['_id'],
         riderResult['vehicle']['plateNum'],
