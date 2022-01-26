@@ -10,6 +10,7 @@ class InProgressBox extends StatelessWidget {
   final String dateFinish;
   final AddressModel address;
   final List<ItemModel> items;
+  final Function buildOrderList;
 
   const InProgressBox({
     Key? key,
@@ -19,6 +20,7 @@ class InProgressBox extends StatelessWidget {
     required this.address,
     required this.dateAccepted,
     required this.dateFinish,
+    required this.buildOrderList,
   }) : super(key: key);
 
   @override
@@ -37,6 +39,7 @@ class InProgressBox extends StatelessWidget {
                 dateFinish: dateFinish,
                 address: address,
                 items: items,
+                buildOrderList: buildOrderList,
               ),
             ),
           );

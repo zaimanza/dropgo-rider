@@ -15,6 +15,90 @@ class InProgressProvider extends ChangeNotifier {
   List<InProgressOrderModel> inProgressOrders = [];
   bool allowBuild = false;
 
+  updateOrdersItemStatus(orderId, itemId, itemState, buildOrderList) {
+    print("updateOrdersItemStatus");
+    print(itemState);
+    if (itemState == "accepted") {
+      print("accepted c1");
+      for (var element in inProgressOrders[inProgressOrders.indexWhere(
+        (order) => order.id == orderId,
+      )]
+          .items) {
+        print(element.itemState);
+      }
+      var itemIndex = inProgressOrders[inProgressOrders.indexWhere(
+        (order) => order.id == orderId,
+      )]
+          .items
+          .indexWhere(
+            (item) => item.id == itemId,
+          );
+      var changingItem = inProgressOrders[inProgressOrders.indexWhere(
+        (order) => order.id == orderId,
+      )]
+          .items[itemIndex];
+      changingItem.itemState = "picked up";
+      inProgressOrders[inProgressOrders.indexWhere(
+        (order) => order.id == orderId,
+      )]
+          .items[itemIndex] = changingItem;
+
+      print("accepted c2");
+      for (var element in inProgressOrders[inProgressOrders.indexWhere(
+        (order) => order.id == orderId,
+      )]
+          .items) {
+        print(element.itemState);
+      }
+    } else if (itemState == "picked up") {
+      var itemIndex = inProgressOrders[inProgressOrders.indexWhere(
+        (order) => order.id == orderId,
+      )]
+          .items
+          .indexWhere(
+            (item) => item.id == itemId,
+          );
+      var changingItem = inProgressOrders[inProgressOrders.indexWhere(
+        (order) => order.id == orderId,
+      )]
+          .items[itemIndex];
+      changingItem.itemState = "delivered";
+
+      inProgressOrders[inProgressOrders.indexWhere(
+        (order) => order.id == orderId,
+      )]
+          .items[itemIndex] = changingItem;
+
+      print(inProgressOrders[inProgressOrders.indexWhere(
+        (order) => order.id == orderId,
+      )]
+          .items[itemIndex]
+          .itemState);
+      print("c1");
+      //check each item
+      bool canDelete = true;
+      for (var item in inProgressOrders[inProgressOrders.indexWhere(
+        (order) => order.id == orderId,
+      )]
+          .items) {
+        print("c2");
+        print(item.itemState);
+        if (item.itemState == "accepted" || item.itemState == "picked up") {
+          canDelete = false;
+        }
+      }
+      print("canDelete");
+      print(canDelete);
+      if (canDelete == true) {
+        inProgressOrders.removeAt(inProgressOrders.indexWhere(
+          (order) => order.id == orderId,
+        ));
+        buildOrderList();
+      }
+    }
+    notifyListeners();
+  }
+
   setInProgress(inProgressResults) {
     inProgressOrders = [];
 
@@ -22,7 +106,6 @@ class InProgressProvider extends ChangeNotifier {
       List<ItemModel> items = [];
       order['items'].forEach((item) {
         double totalPrice = 0.0;
-        print("halu");
         if (isInteger(item["totalPrice"])) {
           totalPrice = item["totalPrice"].toDouble();
         } else {

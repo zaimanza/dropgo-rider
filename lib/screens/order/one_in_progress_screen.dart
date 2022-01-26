@@ -4,7 +4,6 @@ import 'package:dropgorider/graphQl/order/accept_order.dart';
 import 'package:dropgorider/models/address_model.dart';
 import 'package:dropgorider/models/item_model.dart';
 import 'package:dropgorider/widget/in_progress_item_box.dart';
-import 'package:dropgorider/widget/order_item_box.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
@@ -17,6 +16,7 @@ class OneInProgressScreen extends StatefulWidget {
   final String dateFinish;
   final AddressModel address;
   final List<ItemModel> items;
+  final Function buildOrderList;
   const OneInProgressScreen({
     Key? key,
     required this.id,
@@ -25,6 +25,7 @@ class OneInProgressScreen extends StatefulWidget {
     required this.dateFinish,
     required this.address,
     required this.items,
+    required this.buildOrderList,
   }) : super(key: key);
 
   @override
@@ -48,6 +49,9 @@ class _OneInProgressScreenState extends State<OneInProgressScreen> {
           itemInstruction: item.itemInstruction,
           receiver: item.receiver,
           address: item.address,
+          itemId: item.id,
+          orderId: widget.id,
+          buildOrderList: widget.buildOrderList,
         ),
       );
     }
@@ -438,28 +442,6 @@ class _OneInProgressScreenState extends State<OneInProgressScreen> {
                       ),
                       const SizedBox(
                         height: 15,
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          FocusScope.of(context).unfocus();
-                          acceptOrderGQL();
-                        },
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 50,
-                          decoration: const ShapeDecoration(
-                            color: Colors.lightBlue,
-                            shape: StadiumBorder(),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              "Accept Order",
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
                       ),
                     ],
                   ),

@@ -1,10 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropgorider/const/string_capital.dart';
+import 'package:dropgorider/graphQl/graph_ql_api.dart';
+import 'package:dropgorider/graphQl/order/rider_update_item_status.dart';
 import 'package:dropgorider/models/address_model.dart';
 import 'package:dropgorider/models/receiver_model.dart';
+import 'package:dropgorider/providers/in_progress_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/src/provider.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
-class InProgressItemBox extends StatelessWidget {
+class InProgressItemBox extends StatefulWidget {
+  final String orderId;
+  final String itemId;
   final String itemImg;
   final String itemState;
   final String trackCode;
@@ -12,8 +19,11 @@ class InProgressItemBox extends StatelessWidget {
   final String itemInstruction;
   final ReceiverModel receiver;
   final AddressModel address;
+  final Function buildOrderList;
   const InProgressItemBox({
     Key? key,
+    required this.orderId,
+    required this.itemId,
     required this.itemState,
     required this.trackCode,
     required this.itemImg,
@@ -21,12 +31,53 @@ class InProgressItemBox extends StatelessWidget {
     required this.itemInstruction,
     required this.receiver,
     required this.address,
+    required this.buildOrderList,
   }) : super(key: key);
 
   @override
+  _InProgressItemBoxState createState() => _InProgressItemBoxState();
+}
+
+class _InProgressItemBoxState extends State<InProgressItemBox> {
+  bool isLoadingCircularOn = false;
+
+  riderUpdateItemStatusGQL(itemState) async {
+    setState(() {
+      isLoadingCircularOn = true;
+    });
+    QueryResult result;
+    result = await clientQuery.query(
+      QueryOptions(
+        document: gql(riderUpdateItemStatus),
+        variables: {
+          "orderId": widget.orderId,
+          "itemId": widget.itemId,
+          "itemState": itemState
+        },
+      ),
+    );
+
+    if (result.hasException == true) {
+      setState(() {
+        isLoadingCircularOn = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.exception!.graphqlErrors[0].message.toString()),
+        ),
+      );
+    }
+    if (result.hasException == false && result.isLoading == false) {
+      context.read(inProgressProvider).updateOrdersItemStatus(widget.orderId,
+          widget.itemId, widget.itemState, widget.buildOrderList);
+      ;
+      Navigator.pop(context);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    print("Hi aiman");
-    print(itemImg);
     return ClipRRect(
       borderRadius: BorderRadius.circular(5.0),
       child: Container(
@@ -57,7 +108,7 @@ class InProgressItemBox extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: itemImg.startsWith("http") == true
+                      child: widget.itemImg.startsWith("http") == true
                           ? Container(
                               width: double.infinity,
                               height: 250,
@@ -69,18 +120,13 @@ class InProgressItemBox extends StatelessWidget {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10),
-                                // child: Image.network(
-                                //   itemImg,
-                                //   fit: BoxFit.cover,
-                                //   filterQuality: FilterQuality.low,
-                                // ),
                                 child: CachedNetworkImage(
                                   placeholder: (context, url) => const SizedBox(
                                     height: 20,
                                     width: 20,
                                     child: CircularProgressIndicator(),
                                   ),
-                                  imageUrl: itemImg,
+                                  imageUrl: widget.itemImg,
                                   fit: BoxFit.cover,
                                   filterQuality: FilterQuality.low,
                                 ),
@@ -103,7 +149,7 @@ class InProgressItemBox extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        itemState.capitalize(),
+                        widget.itemState.capitalize(),
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                       ),
@@ -120,7 +166,7 @@ class InProgressItemBox extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        trackCode,
+                        widget.trackCode,
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                       ),
@@ -137,7 +183,7 @@ class InProgressItemBox extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        "RM" + totalPrice,
+                        "RM" + widget.totalPrice,
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                       ),
@@ -154,7 +200,7 @@ class InProgressItemBox extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        itemInstruction.capitalize(),
+                        widget.itemInstruction.capitalize(),
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                       ),
@@ -174,12 +220,12 @@ class InProgressItemBox extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            receiver.name.toString().capitalize(),
+                            widget.receiver.name.toString().capitalize(),
                             overflow: TextOverflow.fade,
                             maxLines: 1,
                           ),
                           Text(
-                            receiver.pNumber,
+                            widget.receiver.pNumber,
                             overflow: TextOverflow.fade,
                             maxLines: 1,
                           ),
@@ -201,7 +247,7 @@ class InProgressItemBox extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        address.fullAddr.toString().capitalize(),
+                        widget.address.fullAddr.toString().capitalize(),
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                       ),
@@ -218,7 +264,7 @@ class InProgressItemBox extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        address.state.toString().capitalize(),
+                        widget.address.state.toString().capitalize(),
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                       ),
@@ -235,7 +281,7 @@ class InProgressItemBox extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        address.city.toString().capitalize(),
+                        widget.address.city.toString().capitalize(),
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                       ),
@@ -252,7 +298,7 @@ class InProgressItemBox extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        address.country.toString().capitalize(),
+                        widget.address.country.toString().capitalize(),
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                       ),
@@ -269,7 +315,7 @@ class InProgressItemBox extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        address.postcode.toString(),
+                        widget.address.postcode.toString(),
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                       ),
@@ -286,13 +332,54 @@ class InProgressItemBox extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: Text(
-                        address.unitFloor,
+                        widget.address.unitFloor,
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                       ),
                     ),
                   ],
                 ),
+                if (widget.itemState != "delivered") ...[
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      FocusScope.of(context).unfocus();
+                      if (widget.itemState == "accepted") {
+                        riderUpdateItemStatusGQL("picked up");
+                        //update provider to picked up
+                      } else if (widget.itemState == "picked up") {
+                        riderUpdateItemStatusGQL("delivered");
+                        // check provider, if semua item dh delivered delete
+                      }
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: 50,
+                      decoration: const ShapeDecoration(
+                        color: Colors.lightBlue,
+                        shape: StadiumBorder(),
+                      ),
+                      child: Center(
+                        child: Text(
+                          (() {
+                            if (widget.itemState == "accepted") {
+                              return "Pick Up";
+                            } else if (widget.itemState == "picked up") {
+                              return "Deliver";
+                            } else {
+                              return "Pick Up";
+                            }
+                          }()),
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

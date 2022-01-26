@@ -25,6 +25,7 @@ class _InProgressScreenState extends State<InProgressScreen> {
 
   buildOrderList() {
     print("passing");
+    print(context.read(inProgressProvider).inProgressOrders.length);
     orderList = [];
     for (var order in context.read(inProgressProvider).inProgressOrders) {
       orderList.add(
@@ -35,9 +36,11 @@ class _InProgressScreenState extends State<InProgressScreen> {
           dateCreated: dateFormat(order.dateCreated),
           dateAccepted: dateFormat(order.dateAccepted),
           dateFinish: dateFormat(order.dateFinish),
+          buildOrderList: buildOrderList,
         ),
       );
     }
+    setState(() {});
   }
 
   @override

@@ -221,7 +221,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (result.data != null) {
       setState(() {
-        orderList = [];
         isLoadingCircularOn = false;
         context
             .read(inProgressProvider)
