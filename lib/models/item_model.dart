@@ -7,7 +7,7 @@ class ItemModel {
   String itemState;
   String trackCode;
   String itemImg;
-  // double totalPrice;
+  double totalPrice;
   String itemInstruction;
   String updateAt;
   ReceiverModel receiver;
@@ -18,7 +18,7 @@ class ItemModel {
     this.itemState,
     this.trackCode,
     this.itemImg,
-    // this.totalPrice,
+    this.totalPrice,
     this.itemInstruction,
     this.updateAt,
     this.receiver,
@@ -30,7 +30,7 @@ class ItemModel {
         'itemState': itemState,
         'trackCode': trackCode,
         'itemImg': itemImg,
-        // 'totalPrice': totalPrice,
+        'totalPrice': totalPrice,
         'itemInstruction': itemInstruction,
         'updateAt': updateAt,
         'receiver': receiver.toJson(),
@@ -42,7 +42,7 @@ class ItemModel {
         itemState = json['itemState'],
         trackCode = json['trackCode'],
         itemImg = json['itemImg'],
-        // totalPrice = json['totalPrice'],
+        totalPrice = json['totalPrice'],
         itemInstruction = json['itemInstruction'],
         updateAt = json['updateAt'],
         receiver = json['receiver'],

@@ -94,6 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
               dateFinish: dateFormat(order["dateFinish"]),
               rider: order["rider"] ?? {},
               nearbyVendorGQL: nearbyVendorGQL,
+              inProgressGQL: inProgressGQL,
             ),
           );
         });
@@ -184,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
               dateFinish: dateFormat(order["dateFinish"]),
               rider: order["rider"] ?? {},
               nearbyVendorGQL: nearbyVendorGQL,
+              inProgressGQL: inProgressGQL,
             ),
           );
         });

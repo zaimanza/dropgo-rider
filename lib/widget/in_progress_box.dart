@@ -1,18 +1,17 @@
-import 'package:dropgorider/screens/order/one_order_screen.dart';
+import 'package:dropgorider/models/address_model.dart';
+import 'package:dropgorider/models/item_model.dart';
+import 'package:dropgorider/screens/order/one_in_progress_screen.dart';
 import 'package:flutter/material.dart';
 
-class MyOrderBox extends StatelessWidget {
+class InProgressBox extends StatelessWidget {
   final String id;
   final String dateCreated;
   final String dateAccepted;
   final String dateFinish;
-  final Map address;
-  final List items;
-  final Map rider;
-  final Function nearbyVendorGQL;
-  final Function inProgressGQL;
+  final AddressModel address;
+  final List<ItemModel> items;
 
-  const MyOrderBox({
+  const InProgressBox({
     Key? key,
     required this.id,
     required this.dateCreated,
@@ -20,9 +19,6 @@ class MyOrderBox extends StatelessWidget {
     required this.address,
     required this.dateAccepted,
     required this.dateFinish,
-    required this.rider,
-    required this.nearbyVendorGQL,
-    required this.inProgressGQL,
   }) : super(key: key);
 
   @override
@@ -34,15 +30,13 @@ class MyOrderBox extends StatelessWidget {
           Navigator.push(
             context,
             PageRouteBuilder(
-              pageBuilder: (context, __, ___) => OneOrderScreen(
+              pageBuilder: (context, __, ___) => OneInProgressScreen(
                 id: id,
                 dateCreated: dateCreated,
                 dateAccepted: dateAccepted,
                 dateFinish: dateFinish,
                 address: address,
                 items: items,
-                nearbyVendorGQL: nearbyVendorGQL,
-                inProgressGQL: inProgressGQL,
               ),
             ),
           );
@@ -80,7 +74,7 @@ class MyOrderBox extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            address["fullAddr"],
+                            address.fullAddr,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,

@@ -1,3 +1,4 @@
+import 'package:dropgorider/const/is_interger.dart';
 import 'package:dropgorider/models/address_model.dart';
 import 'package:dropgorider/models/in_progress_order_model.dart';
 import 'package:dropgorider/models/item_model.dart';
@@ -12,19 +13,28 @@ final InProgressProvider inProgressProviderVar = InProgressProvider();
 
 class InProgressProvider extends ChangeNotifier {
   List<InProgressOrderModel> inProgressOrders = [];
+  bool allowBuild = false;
 
   setInProgress(inProgressResults) {
-    List<ItemModel> items = [];
+    inProgressOrders = [];
 
     inProgressResults.forEach((order) {
+      List<ItemModel> items = [];
       order['items'].forEach((item) {
+        double totalPrice = 0.0;
+        print("halu");
+        if (isInteger(item["totalPrice"])) {
+          totalPrice = item["totalPrice"].toDouble();
+        } else {
+          totalPrice = item["totalPrice"];
+        }
         items.add(
           ItemModel(
             item["_id"] ?? "",
             item["itemState"] ?? "",
             item["trackCode"] ?? "",
             item["itemImg"] ?? "",
-            // item["totalPrice"],
+            totalPrice,
             item["itemInstruction"] ?? "",
             item["updateAt"] ?? "",
             ReceiverModel(

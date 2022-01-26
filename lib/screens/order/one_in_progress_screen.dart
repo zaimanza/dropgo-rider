@@ -1,22 +1,23 @@
 import 'package:dropgorider/const/no_glow.dart';
 import 'package:dropgorider/graphQl/graph_ql_api.dart';
 import 'package:dropgorider/graphQl/order/accept_order.dart';
+import 'package:dropgorider/models/address_model.dart';
+import 'package:dropgorider/models/item_model.dart';
+import 'package:dropgorider/widget/in_progress_item_box.dart';
 import 'package:dropgorider/widget/order_item_box.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-class OneOrderScreen extends StatefulWidget {
+class OneInProgressScreen extends StatefulWidget {
   final String id;
   final String dateCreated;
   final String dateAccepted;
   final String dateFinish;
-  final Map address;
-  final List items;
-  final Function nearbyVendorGQL;
-  final Function inProgressGQL;
-  const OneOrderScreen({
+  final AddressModel address;
+  final List<ItemModel> items;
+  const OneInProgressScreen({
     Key? key,
     required this.id,
     required this.dateCreated,
@@ -24,15 +25,13 @@ class OneOrderScreen extends StatefulWidget {
     required this.dateFinish,
     required this.address,
     required this.items,
-    required this.nearbyVendorGQL,
-    required this.inProgressGQL,
   }) : super(key: key);
 
   @override
-  _OneOrderScreenState createState() => _OneOrderScreenState();
+  _OneInProgressScreenState createState() => _OneInProgressScreenState();
 }
 
-class _OneOrderScreenState extends State<OneOrderScreen> {
+class _OneInProgressScreenState extends State<OneInProgressScreen> {
   bool isLoadingCircularOn = false;
   List<Widget> orderItemsBox = [];
   @override
@@ -41,14 +40,14 @@ class _OneOrderScreenState extends State<OneOrderScreen> {
     super.initState();
     for (var item in widget.items) {
       orderItemsBox.add(
-        OrderItemBox(
-          itemState: item["itemState"],
-          trackCode: item["trackCode"],
-          itemImg: item["itemImg"],
-          totalPrice: item["totalPrice"].toStringAsFixed(2),
-          itemInstruction: item["itemInstruction"],
-          receiver: item["receiver"],
-          address: item["address"],
+        InProgressItemBox(
+          itemState: item.itemState,
+          trackCode: item.trackCode,
+          itemImg: item.itemImg,
+          totalPrice: item.totalPrice.toStringAsFixed(2),
+          itemInstruction: item.itemInstruction,
+          receiver: item.receiver,
+          address: item.address,
         ),
       );
     }
@@ -84,8 +83,6 @@ class _OneOrderScreenState extends State<OneOrderScreen> {
       setState(() {
         isLoadingCircularOn = false;
         print(result.data);
-        widget.nearbyVendorGQL();
-        widget.inProgressGQL();
         Navigator.of(context).pop();
       });
     }
@@ -113,7 +110,7 @@ class _OneOrderScreenState extends State<OneOrderScreen> {
               },
             ),
             title: Text(
-              widget.address["fullAddr"],
+              widget.address.fullAddr,
               style: const TextStyle(
                 fontSize: 22,
                 color: Colors.black,
@@ -292,7 +289,7 @@ class _OneOrderScreenState extends State<OneOrderScreen> {
                                       Expanded(
                                         flex: 2,
                                         child: Text(
-                                          widget.address["fullAddr"],
+                                          widget.address.fullAddr,
                                           overflow: TextOverflow.fade,
                                           maxLines: 1,
                                         ),
@@ -309,7 +306,7 @@ class _OneOrderScreenState extends State<OneOrderScreen> {
                                       Expanded(
                                         flex: 2,
                                         child: Text(
-                                          widget.address["state"],
+                                          widget.address.state,
                                           overflow: TextOverflow.fade,
                                           maxLines: 1,
                                         ),
@@ -326,7 +323,7 @@ class _OneOrderScreenState extends State<OneOrderScreen> {
                                       Expanded(
                                         flex: 2,
                                         child: Text(
-                                          widget.address["city"],
+                                          widget.address.city,
                                           overflow: TextOverflow.fade,
                                           maxLines: 1,
                                         ),
@@ -343,7 +340,7 @@ class _OneOrderScreenState extends State<OneOrderScreen> {
                                       Expanded(
                                         flex: 2,
                                         child: Text(
-                                          widget.address["country"],
+                                          widget.address.country,
                                           overflow: TextOverflow.fade,
                                           maxLines: 1,
                                         ),
@@ -360,7 +357,7 @@ class _OneOrderScreenState extends State<OneOrderScreen> {
                                       Expanded(
                                         flex: 2,
                                         child: Text(
-                                          widget.address["postcode"].toString(),
+                                          widget.address.postcode.toString(),
                                           overflow: TextOverflow.fade,
                                           maxLines: 1,
                                         ),
@@ -377,7 +374,7 @@ class _OneOrderScreenState extends State<OneOrderScreen> {
                                       Expanded(
                                         flex: 2,
                                         child: Text(
-                                          widget.address["unitFloor"],
+                                          widget.address.unitFloor,
                                           overflow: TextOverflow.fade,
                                           maxLines: 1,
                                         ),
