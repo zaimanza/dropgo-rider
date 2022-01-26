@@ -1,4 +1,6 @@
 import 'package:dropgorider/providers/rider_provider.dart';
+import 'package:dropgorider/screens/logged_in/rider_order_history_screen.dart';
+import 'package:dropgorider/screens/profile/profile_screen.dart';
 import 'package:dropgorider/screens/start_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/all.dart';
@@ -59,13 +61,28 @@ class NavigationDrawerWidget extends StatelessWidget {
                     onClicked: () {
                       Navigator.of(context).pop();
                       Navigator.of(context).popUntil((route) => route.isFirst);
-                      // Navigator.push(
-                      //   context,
-                      //   PageRouteBuilder(
-                      //     pageBuilder: (context, __, ___) =>
-                      //         const ProfileScreen(),
-                      //   ),
-                      // );
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (context, __, ___) =>
+                              const ProfileScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  buildMenuItem(
+                    text: "Order History",
+                    icon: Icons.article_outlined,
+                    onClicked: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (context, __, ___) =>
+                              const RiderOrderHistoryScreen(),
+                        ),
+                      );
                     },
                   ),
                   buildMenuItem(
