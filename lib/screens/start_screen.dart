@@ -1,7 +1,6 @@
 import 'package:dropgorider/const/no_glow.dart';
 import 'package:dropgorider/screens/sign_in_screen.dart';
 import 'package:dropgorider/screens/sign_up_screen.dart';
-import 'package:dropgorider/screens/verify/verify_rider.dart';
 import 'package:flutter/material.dart';
 
 class StartScreen extends StatefulWidget {
@@ -110,25 +109,6 @@ class _StartScreenState extends State<StartScreen> {
                               ),
                               const SizedBox(
                                 height: 15,
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  FocusScope.of(context).unfocus();
-
-                                  Navigator.push(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, __, ___) =>
-                                          const VerifyRiderScreen(),
-                                    ),
-                                  );
-                                },
-                                child: const Text(
-                                  "Verify Rider",
-                                  style: TextStyle(
-                                    color: Colors.lightBlue,
-                                  ),
-                                ),
                               ),
                             ],
                           ),
