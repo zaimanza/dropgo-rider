@@ -1,6 +1,6 @@
 const String startWork = r"""
 mutation StartWork($liveLatLng: String) {
-  startWork(liveLatLng: $liveLatLng) {
+startWork(liveLatLng: $liveLatLng) {
     _id
     dateCreated
     dateAccepted
@@ -68,5 +68,5 @@ mutation StartWork($liveLatLng: String) {
       }
     }
   }
-}
+}  
 """;
